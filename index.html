@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAA Flashcards - 100 Cards Complete Study Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a535c;
+            --secondary: #4ecdc4;
+            --accent: #ff6b6b;
+            --dark: #0d2327;
+            --light: #f7f9f9;
+            --card-bg: #ffffff;
+            --shadow: rgba(26, 83, 92, 0.15);
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(135deg, #f7f9f9 0%, #e8f4f5 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--primary);
+            opacity: 0.7;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.5rem;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .progress-bar {
+            background: white;
+            border-radius: 50px;
+            height: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            border-radius: 50px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .card-container {
+            perspective: 1000px;
+            min-height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .flashcard {
+            width: 100%;
+            max-width: 700px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 20px 60px var(--shadow);
+            overflow-y: auto;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #ffffff 100%);
+            border: 3px solid var(--primary);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .category-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 0.4rem 1rem;
+            background: var(--accent);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-front .category-badge {
+            background: var(--secondary);
+            color: var(--dark);
+        }
+
+        .card-number {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            opacity: 0.4;
+        }
+
+        .card-back .card-number {
+            color: white;
+        }
+
+        .question {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark);
+            line-height: 1.4;
+            margin: 1rem 0;
+        }
+
+        .answer {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.95);
+            margin: 1rem 0;
+        }
+
+        .answer strong {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .answer code {
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: var(--primary);
+            opacity: 0.6;
+            margin-top: 1.5rem;
+            font-style: italic;
+        }
+
+        .card-back .hint {
+            color: var(--secondary);
+            opacity: 0.8;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .nav-btn {
+            padding: 0.8rem 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .flip-btn {
+            background: var(--accent);
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+        }
+
+        .flip-btn:hover {
+            background: #ff5252;
+        }
+
+        .card-counter {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--primary);
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.3rem;
+        }
+
+        .keyboard-hint {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: var(--primary);
+            opacity: 0.5;
+        }
+
+        .footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px var(--shadow);
+            text-align: center;
+        }
+
+        .footer-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .github-profiles {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .github-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .github-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--shadow);
+            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+        }
+
+        .github-icon {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .github-username {
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1rem;
+        }
+
+        .github-name {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-left: 0.5rem;
+        }
+
+        .shuffle-btn {
+            background: var(--secondary);
+            color: var(--dark);
+        }
+
+        .shuffle-btn:hover {
+            background: #3db3aa;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .flashcard {
+                height: 350px;
+            }
+
+            .card-face {
+                padding: 2rem;
+            }
+
+            .question {
+                font-size: 1.4rem;
+            }
+
+            .answer {
+                font-size: 0.95rem;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .github-profiles {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .github-card {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container > * {
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+
+        .container > *:nth-child(1) { animation-delay: 0.1s; }
+        .container > *:nth-child(2) { animation-delay: 0.2s; }
+        .container > *:nth-child(3) { animation-delay: 0.3s; }
+        .container > *:nth-child(4) { animation-delay: 0.4s; }
+        .container > *:nth-child(5) { animation-delay: 0.5s; }
+        .container > *:nth-child(6) { animation-delay: 0.6s; }
+        .container > *:nth-child(7) { animation-delay: 0.7s; }
+        .container > *:nth-child(8) { animation-delay: 0.8s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Algorithm Design Flashcards</h1>
+            <p class="subtitle">100 Cards • Complete DAA Exam Preparation • All Topics Covered</p>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="controls" id="filters"></div>
+
+        <div class="card-container">
+            <div class="flashcard" id="flashcard">
+                <div class="card-face card-front" id="cardFront">
+                    <div class="card-number" id="cardNumberFront"></div>
+                    <div class="category-badge" id="categoryFront"></div>
+                    <div class="question" id="question"></div>
+                    <div class="hint">Click card or press SPACE to reveal answer</div>
+                </div>
+                <div class="card-face card-back" id="cardBack">
+                    <div class="card-number" id="cardNumberBack"></div>
+                    <div class="category-badge" id="categoryBack"></div>
+                    <div class="answer" id="answer"></div>
+                    <div class="hint">Click card or press SPACE to flip back</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="previousCard()">← Previous</button>
+            <div class="card-counter" id="counter"></div>
+            <button class="nav-btn" id="nextBtn" onclick="nextCard()">Next →</button>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <button class="nav-btn shuffle-btn" onclick="shuffleCards()">🔀 Shuffle Cards</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="totalCards">100</div>
+                <div class="stat-label">Total Cards</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="currentProgress">0</div>
+                <div class="stat-label">Progress</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="categoryCount">15</div>
+                <div class="stat-label">Categories</div>
+            </div>
+        </div>
+
+        <div class="keyboard-hint">
+            💡 Use ← → arrow keys to navigate • SPACE to flip cards
+        </div>
+
+        <div class="footer">
+            <div class="footer-title">Created By</div>
+            <div class="github-profiles">
+                <a href="https://github.com/AV-016" target="_blank" class="github-card">
+                    <svg class="github-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                    </svg>
+                    <div>
+                        <span class="github-username">AV-016</span>
+                        <span class="github-name">• Anushka</span>
+                    </div>
+                </a>
+                <a href="https://github.com/Aryan-sriii" target="_blank" class="github-card">
+                    <svg class="github-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                    </svg>
+                    <div>
+                        <span class="github-username">Aryan-sriii</span>
+                        <span class="github-name">• Aryan</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            // ========== BACKTRACKING: Core Concepts ==========
+            {
+                category: "BT: Core Concepts",
+                question: "What is Backtracking?",
+                answer: "Backtracking is a problem-solving technique where the solution depends on a series of decisions. You try a path, and if it doesn't work, you <strong>go back</strong> and try a different route. It's like solving a maze - exploring paths and backtracking when you hit a dead end."
+            },
+            {
+                category: "BT: Core Concepts",
+                question: "When should you use Backtracking?",
+                answer: "Use backtracking when: <br>• You need to make a series of decisions<br>• You don't have enough information upfront<br>• Each decision leads to new choices<br>• You're looking for sequences that solve your problem<br><br>Examples: puzzles, mazes, constraint satisfaction problems."
+            },
+            {
+                category: "BT: Core Concepts",
+                question: "What are the three basic steps of Backtracking?",
+                answer: "<strong>1. Start</strong> with a partial solution<br><strong>2. Check</strong> if this can lead to a complete solution<br><strong>3. Backtrack</strong> if it doesn't work and try a different path<br><br>This process repeats until you find a solution or exhaust all possibilities."
+            },
+            {
+                category: "BT: Core Concepts",
+                question: "What is Search Pruning in backtracking?",
+                answer: "Search pruning is an optimization technique that <strong>identifies and avoids paths that cannot possibly lead to a solution</strong> early in the process. This saves time by cutting off entire branches of the search tree before fully exploring them."
+            },
+            {
+                category: "BT: Core Concepts",
+                question: "What is a State Space Tree?",
+                answer: "The State Space Tree is the <strong>tree organization of all possible solution paths</strong>. It shows:<br>• <strong>Root</strong>: Starting point<br>• <strong>Internal nodes</strong>: Intermediate decision points<br>• <strong>Leaf nodes</strong>: Complete solutions or dead ends<br><br>It represents the entire search space visually."
+            },
+
+            // ========== BACKTRACKING: Terminology ==========
+            {
+                category: "BT: Terminology",
+                question: "What is a Live Node?",
+                answer: "A Live Node is a node that has been <strong>generated but not fully explored yet</strong>. Its children haven't all been generated. Think of it as a partially opened box - you know it exists but haven't looked inside completely."
+            },
+            {
+                category: "BT: Terminology",
+                question: "What is an E-node (Expansion Node)?",
+                answer: "An E-node (Expansion Node) is the <strong>live node currently being explored</strong> - the one whose children are being generated right now. It's the active focus of the search algorithm at any given moment."
+            },
+            {
+                category: "BT: Terminology",
+                question: "What is a Dead Node?",
+                answer: "A Dead Node is a node that is <strong>not expanded further</strong> because:<br>• All of its children have been generated, OR<br>• It has been determined that it cannot lead to a solution<br><br>Once a node is dead, the algorithm never returns to it."
+            },
+            {
+                category: "BT: Terminology",
+                question: "How does DFS relate to Backtracking?",
+                answer: "<strong>Backtracking is essentially DFS with a bounding function.</strong><br><br>DFS (Depth First Search) explores as deep as possible along each branch before backtracking. When combined with constraint checking (bounding), it becomes the backtracking technique."
+            },
+            {
+                category: "BT: Terminology",
+                question: "What are the three types of nodes in a tree?",
+                answer: "<strong>1. Root Node</strong>: The single starting point of the tree<br><strong>2. Internal Nodes</strong>: Nodes with at least one child<br><strong>3. Leaf Nodes</strong>: Nodes with no children (endpoints)<br><br>In backtracking, leaf nodes represent either solutions or dead ends."
+            },
+
+            // ========== BACKTRACKING: Algorithms ==========
+            {
+                category: "BT: Algorithms",
+                question: "Explain the Recursive Backtracking approach",
+                answer: "Recursive backtracking uses <strong>function calls to explore paths</strong>:<br><br><code>Backtrack(k):</code><br>  For each possible value x[k]:<br>    If valid, try x[k]<br>    If solution complete, print it<br>    Else, recursively call Backtrack(k+1)<br><br>The recursion automatically backtracks when it returns from failed paths."
+            },
+            {
+                category: "BT: Algorithms",
+                question: "Explain the Iterative Backtracking approach",
+                answer: "Iterative backtracking uses <strong>loops instead of recursion</strong>:<br><br><code>k = 1</code><br><code>While k ≠ 0:</code><br>  If valid option exists: try it, move forward (k++)<br>  Else: backtrack (k--)<br><br>Manually controls which position you're working on, avoiding recursion overhead."
+            },
+            {
+                category: "BT: Algorithms",
+                question: "What's the key difference between Recursive and Iterative Backtracking?",
+                answer: "<strong>Recursive</strong>: Uses function call stack to remember state. Elegant and intuitive but can cause stack overflow.<br><br><strong>Iterative</strong>: Uses explicit variable (k) to track position. More control, no stack overflow risk, but slightly more complex to implement."
+            },
+            {
+                category: "BT: Algorithms",
+                question: "What does the bounding function Bk() do?",
+                answer: "The bounding function <strong>checks if a partial solution can possibly lead to a complete solution</strong>. It returns:<br>• <strong>True</strong>: Worth exploring further<br>• <strong>False</strong>: Prune this branch<br><br>This is the 'intelligent' part of backtracking that avoids exploring hopeless paths."
+            },
+
+            // ========== BACKTRACKING: N-Queens ==========
+            {
+                category: "BT: N-Queens",
+                question: "What is the N-Queens Problem?",
+                answer: "Place <strong>N queens on an N×N chessboard</strong> so that no two queens can attack each other.<br><br>Queens attack:<br>• Same row<br>• Same column<br>• Same diagonal<br><br>For 8 queens on 8×8 board, there are 92 different solutions!"
+            },
+            {
+                category: "BT: N-Queens",
+                question: "Why is backtracking better than brute force for N-Queens?",
+                answer: "<strong>Brute force</strong>: Try all N^N configurations (4^4 = 256 for 4-queens)<br><br><strong>Backtracking</strong>: Place queens row-by-row, immediately backtrack when placing a queen creates a conflict. Explores far fewer configurations by pruning invalid branches early."
+            },
+            {
+                category: "BT: N-Queens",
+                question: "How does the N-Queens algorithm work?",
+                answer: "<strong>1.</strong> Place queen in row 1, try columns 1 to N<br><strong>2.</strong> For each valid position, move to next row<br><strong>3.</strong> Place queen in row 2, try columns 1 to N<br><strong>4.</strong> Check if safe (no conflicts with previous queens)<br><strong>5.</strong> If stuck, backtrack to previous row and try next column<br><strong>6.</strong> Repeat until all N queens placed"
+            },
+            {
+                category: "BT: N-Queens",
+                question: "What does the Place() function check in N-Queens?",
+                answer: "Place(k, i) checks if placing a queen at row k, column i is <strong>safe</strong> by verifying:<br><br>• No queen in the same column<br>• No queen on the same diagonal (both directions)<br><br>It only needs to check <strong>previous rows</strong> since we place queens row-by-row from top to bottom."
+            },
+            {
+                category: "BT: N-Queens",
+                question: "What makes a valid N-Queens solution?",
+                answer: "A valid solution requires:<br><br><strong>✓</strong> Exactly N queens on the board<br><strong>✓</strong> One queen per row<br><strong>✓</strong> One queen per column<br><strong>✓</strong> No two queens on the same diagonal<br><br>Each queen must be unable to attack any other queen."
+            },
+
+            // ========== BACKTRACKING: Graph Coloring ==========
+            {
+                category: "BT: Graph Coloring",
+                question: "What is the Graph Coloring Problem?",
+                answer: "Assign <strong>colors to vertices</strong> of a graph such that <strong>no two adjacent vertices share the same color</strong>.<br><br>Goal: Use at most <strong>m colors</strong> (m = chromatic number).<br><br>Applications: scheduling, register allocation, map coloring."
+            },
+            {
+                category: "BT: Graph Coloring",
+                question: "What is the chromatic number?",
+                answer: "The chromatic number is the <strong>minimum number of colors needed</strong> to properly color a graph.<br><br>Examples:<br>• Triangle (3 connected vertices): chromatic number = 3<br>• Line (2 connected vertices): chromatic number = 2<br>• Complete graph with n vertices: chromatic number = n"
+            },
+            {
+                category: "BT: Graph Coloring",
+                question: "How does m-Coloring backtracking work?",
+                answer: "<code>m-Coloring(k):</code><br>  For each color c from 1 to m:<br>    If c doesn't conflict with neighbors:<br>      Assign color c to vertex k<br>      If all vertices colored: solution found!<br>      Else: m-Coloring(k+1)<br><br>Tries colors systematically, backtracking when stuck."
+            },
+            {
+                category: "BT: Graph Coloring",
+                question: "What is the time complexity of m-Coloring?",
+                answer: "<strong>O(n · m^n)</strong><br><br>Explanation:<br>• Up to <strong>m choices</strong> at each of <strong>n vertices</strong><br>• At each node, checking validity takes <strong>O(mn)</strong> time<br><br>This is exponential - why graph coloring is NP-complete!"
+            },
+            {
+                category: "BT: Graph Coloring",
+                question: "When is 2-coloring possible?",
+                answer: "A graph is 2-colorable if and only if it is <strong>bipartite</strong> (contains no odd-length cycles).<br><br>Example:<br>• Trees: Always 2-colorable ✓<br>• Triangles: NOT 2-colorable ✗<br>• Even cycles: 2-colorable ✓<br>• Odd cycles: NOT 2-colorable ✗"
+            },
+
+            // ========== BACKTRACKING: Hamiltonian Cycle ==========
+            {
+                category: "BT: Hamiltonian",
+                question: "What is a Hamiltonian Cycle?",
+                answer: "A Hamiltonian Cycle is a cycle in a graph that:<br><br><strong>✓</strong> Visits every vertex exactly once<br><strong>✓</strong> Returns to the starting vertex<br><br>Named after mathematician William Rowan Hamilton. Finding one is NP-complete!"
+            },
+            {
+                category: "BT: Hamiltonian",
+                question: "What's the difference between Hamiltonian Cycle and Hamiltonian Path?",
+                answer: "<strong>Hamiltonian Cycle</strong>: Visits all vertices once and <strong>returns to start</strong><br><br><strong>Hamiltonian Path</strong>: Visits all vertices once but <strong>doesn't return to start</strong><br><br>Example: In a square graph, both exist. In a star graph, only a path exists."
+            },
+            {
+                category: "BT: Hamiltonian",
+                question: "What is a Hamiltonian Graph?",
+                answer: "A graph is called <strong>Hamiltonian</strong> if it contains at least one Hamiltonian cycle.<br><br>Note: There's <strong>no simple way</strong> to determine if a graph is Hamiltonian - you generally need to search for a cycle (backtracking helps!)."
+            },
+            {
+                category: "BT: Hamiltonian",
+                question: "How does Hamiltonian Cycle backtracking work?",
+                answer: "<strong>1.</strong> Start at vertex 1, add to path<br><strong>2.</strong> Try adding adjacent unvisited vertices<br><strong>3.</strong> Check if new vertex is:<br>   • Adjacent to last vertex in path<br>   • Not already in path<br><strong>4.</strong> If all n vertices visited AND edge back to start exists: Found cycle!<br><strong>5.</strong> Else: backtrack and try different vertex"
+            },
+            {
+                category: "BT: Hamiltonian",
+                question: "What are real-world applications of Hamiltonian Cycles?",
+                answer: "<strong>• Traveling Salesman Problem:</strong> Visit all cities once with minimum cost<br><strong>• Circuit Design:</strong> Route connections visiting all points<br><strong>• DNA Sequencing:</strong> Reconstruct sequences<br><strong>• Network Routing:</strong> Visit all nodes efficiently<br><strong>• Game Theory:</strong> Knight's tour on chessboard"
+            },
+
+            // ========== BRANCH AND BOUND: Core Concepts ==========
+            {
+                category: "B&B: Core Concepts",
+                question: "What is Branch and Bound?",
+                answer: "Branch and Bound is an <strong>algorithm design paradigm for solving combinatorial optimization problems</strong>. It systematically enumerates candidate solutions while discarding large subsets of fruitless candidates using <strong>upper and lower bounds</strong> of the quantity being optimized."
+            },
+            {
+                category: "B&B: Core Concepts",
+                question: "Who developed Branch and Bound and when?",
+                answer: "Branch and Bound was <strong>first proposed by A. H. Land and A. G. Doig in 1960</strong> for linear programming.<br><br>Goal: To find the minimum (or maximum) value of a given objective function f(x)."
+            },
+            {
+                category: "B&B: Core Concepts",
+                question: "What type of problems is Branch and Bound best suited for?",
+                answer: "Branch and Bound is <strong>best suited for optimization problems</strong>, especially when:<br>• Item weights are not integers<br>• You need to find the optimal solution (not just any solution)<br>• Problems are exponential in nature<br><br>It's particularly effective for 0/1 Knapsack, TSP, and job scheduling."
+            },
+            {
+                category: "B&B: Core Concepts",
+                question: "What are the two main tools required in Branch and Bound?",
+                answer: "<strong>1. Branching:</strong> Splitting the problem - given a set S of candidates, return 2+ smaller sets whose union covers S<br><br><strong>2. Bounding:</strong> Computes upper and lower bounds for each node to determine if this path can lead to optimal solution"
+            },
+            {
+                category: "B&B: Core Concepts",
+                question: "How does Bounding help in Branch and Bound?",
+                answer: "Bounding <strong>helps prune the search tree efficiently</strong> by:<br>• Computing upper/lower bounds for each node<br>• Comparing bounds with current best solution<br>• Abandoning branches that cannot improve the solution<br>• Updating bounds when better solutions are found<br><br>This leads to faster exploration!"
+            },
+            {
+                category: "B&B: Core Concepts",
+                question: "How is maximization converted to minimization in B&B?",
+                answer: "Branch and Bound deals directly with <strong>minimization problems</strong>.<br><br>To convert maximization to minimization:<br><strong>Change the sign of the objective function</strong><br><br>Example: Maximize f(x) → Minimize -f(x)<br><br>The optimal solution remains the same, just with opposite sign!"
+            },
+
+            // ========== BRANCH AND BOUND: Search Strategies ==========
+            {
+                category: "B&B: Strategies",
+                question: "What are the three search strategies in Branch and Bound?",
+                answer: "<strong>1. LIFO (Stack)</strong> - D-Search Branch and Bound (Depth-first)<br><strong>2. FIFO (Queue)</strong> - BFS or FIFO Branch and Bound (Breadth-first)<br><strong>3. Least Cost (LC)</strong> - LC Branch and Bound (Best-first)<br><br>Each uses different data structures and exploration orders."
+            },
+            {
+                category: "B&B: Strategies",
+                question: "Explain FIFO Branch and Bound",
+                answer: "<strong>FIFO (First-In-First-Out) uses a Queue</strong><br><br>• Also called BFS Branch and Bound<br>• Explores nodes level-by-level<br>• Generates all children of E-node before moving to next<br>• Fair exploration of all branches<br>• Good for finding solutions at shallow depths"
+            },
+            {
+                category: "B&B: Strategies",
+                question: "Explain LIFO Branch and Bound",
+                answer: "<strong>LIFO (Last-In-First-Out) uses a Stack</strong><br><br>• Also called D-Search (Depth-Search) Branch and Bound<br>• Explores deeply before backtracking<br>• Similar to DFS traversal<br>• Memory efficient<br>• May get stuck exploring deep unpromising paths"
+            },
+            {
+                category: "B&B: Strategies",
+                question: "Explain Least Cost (LC) Branch and Bound",
+                answer: "<strong>LC Branch and Bound uses a Priority Queue</strong><br><br>• Always expands the most promising node (lowest cost/bound)<br>• Best-first search strategy<br>• Most efficient for optimization<br>• Requires cost function for each node<br>• Finds optimal solution faster than FIFO/LIFO"
+            },
+            {
+                category: "B&B: Strategies",
+                question: "Which Branch and Bound strategy is most efficient?",
+                answer: "<strong>Least Cost (LC) Branch and Bound</strong> is generally most efficient because:<br>• Explores most promising nodes first<br>• Prunes more branches early<br>• Converges to optimal solution faster<br><br>However, it requires more overhead to maintain the priority queue and compute bounds."
+            },
+
+            // ========== 0/1 KNAPSACK ==========
+            {
+                category: "0/1 Knapsack",
+                question: "What is the 0/1 Knapsack Problem?",
+                answer: "Given:<br>• n items with weights and values<br>• A knapsack with capacity W<br><br>Goal: <strong>Select items to maximize total value</strong> without exceeding capacity<br><br>Constraint: Each item can be taken 0 or 1 times (cannot take fractions)"
+            },
+            {
+                category: "0/1 Knapsack",
+                question: "How do we find bounds for 0/1 Knapsack nodes?",
+                answer: "Use the <strong>Fractional Knapsack greedy solution</strong> as the upper bound:<br><br>1. Sort items by value/weight ratio (descending)<br>2. For current node, add remaining items greedily<br>3. Allow fractional items to fill capacity<br><br>If this upper bound ≤ current best, prune the node!"
+            },
+            {
+                category: "0/1 Knapsack",
+                question: "What is the general approach for 0/1 Knapsack using B&B?",
+                answer: "<strong>1.</strong> Sort items by value/weight ratio<br><strong>2.</strong> Initialize maxProfit = 0<br><strong>3.</strong> Create queue Q with dummy root node<br><strong>4.</strong> For each node:<br>   • Compute profit if item included<br>   • Compute upper bound<br>   • Add to Q if bound > maxProfit<br>   • Also consider NOT including item<br><strong>5.</strong> Continue until Q is empty"
+            },
+            {
+                category: "0/1 Knapsack",
+                question: "Why sort items by value/weight ratio in Knapsack?",
+                answer: "Sorting by <strong>value/weight ratio (profit density)</strong>:<br><br>• Enables efficient upper bound calculation<br>• Greedy approach fills knapsack with best items first<br>• Provides tighter bounds<br>• Leads to better pruning<br>• Reduces search space significantly"
+            },
+            {
+                category: "0/1 Knapsack",
+                question: "What is the difference between 0/1 and Fractional Knapsack?",
+                answer: "<strong>0/1 Knapsack:</strong><br>• Each item: all or nothing<br>• NP-Complete problem<br>• Requires B&B or DP<br>• More difficult<br><br><strong>Fractional Knapsack:</strong><br>• Can take fractions of items<br>• Solvable by greedy in O(n log n)<br>• Used to bound 0/1 Knapsack<br>• Easier"
+            },
+            {
+                category: "0/1 Knapsack",
+                question: "Explain the branching in 0/1 Knapsack B&B",
+                answer: "At each level, we make a <strong>binary decision</strong> for item i:<br><br><strong>Left child:</strong> Include item i<br>• Add item's value to profit<br>• Reduce remaining capacity<br><br><strong>Right child:</strong> Exclude item i<br>• Keep same profit<br>• Keep same capacity<br><br>This creates a binary decision tree of height n."
+            },
+
+            // ========== BRANCH AND BOUND: Applications ==========
+            {
+                category: "B&B: Applications",
+                question: "What are the main applications of Branch and Bound?",
+                answer: "<strong>1. Traveling Salesperson Problem (TSP)</strong> - Find shortest route visiting all cities<br><strong>2. 0/1 Knapsack Problem</strong> - Optimize item selection<br><strong>3. Nearest Neighbor Search</strong> - Find closest points<br><strong>4. Job Scheduling</strong> - Optimize task assignment<br><strong>5. False Noise Analysis</strong> - Signal processing"
+            },
+            {
+                category: "B&B: Applications",
+                question: "How is Branch and Bound used in Traveling Salesperson Problem?",
+                answer: "For TSP using B&B:<br>• <strong>Branching:</strong> Choose next city to visit<br>• <strong>Bounding:</strong> Calculate minimum possible tour cost from current partial tour<br>• <strong>Pruning:</strong> Abandon tours whose lower bound exceeds best known tour<br>• <strong>Optimal:</strong> Guarantees finding shortest tour"
+            },
+
+            // ========== COMPARISON: Backtracking vs Branch & Bound ==========
+            {
+                category: "BT vs B&B",
+                question: "What is the main difference in PURPOSE between Backtracking and Branch & Bound?",
+                answer: "<strong>Backtracking:</strong> Used to find <strong>ALL possible solutions</strong> to a problem<br><br><strong>Branch and Bound:</strong> Used to solve <strong>optimization problems</strong> (find the best solution)<br><br>BT explores everything; B&B finds the optimum."
+            },
+            {
+                category: "BT vs B&B",
+                question: "How do Backtracking and Branch & Bound differ in tree traversal?",
+                answer: "<strong>Backtracking:</strong> Based on <strong>DFS (Depth First Search)</strong> approach only<br><br><strong>Branch and Bound:</strong> Can use <strong>DFS, BFS, or Best-First</strong> (LIFO, FIFO, or LC)<br><br>B&B is more flexible in exploration strategy."
+            },
+            {
+                category: "BT vs B&B",
+                question: "What additional function does each technique use?",
+                answer: "<strong>Backtracking:</strong> Uses a <strong>Feasibility Function</strong> to check if current path can lead to valid solution<br><br><strong>Branch and Bound:</strong> Uses a <strong>Bounding Function</strong> to compute upper/lower bounds and prune sub-optimal paths"
+            },
+            {
+                category: "BT vs B&B",
+                question: "How do BT and B&B handle abandoning solutions?",
+                answer: "<strong>Backtracking:</strong> Recognizes it made a <strong>wrong choice</strong> and undoes the last decision (backtracks)<br><br><strong>Branch and Bound:</strong> Knows it has a <strong>better optimal solution</strong> than current path, so abandons it entirely"
+            },
+            {
+                category: "BT vs B&B",
+                question: "How does search scope differ in BT vs B&B?",
+                answer: "<strong>Backtracking:</strong> <strong>Explores until answer is found</strong> (stops at first valid solution or explores all for multiple solutions)<br><br><strong>Branch and Bound:</strong> <strong>Searches entire tree</strong> to ensure finding the optimal solution, but prunes aggressively"
+            },
+            {
+                category: "BT vs B&B",
+                question: "When should you use Backtracking vs Branch & Bound?",
+                answer: "Use <strong>Backtracking</strong> when:<br>• Need to find all solutions<br>• Constraint satisfaction problems<br>• Feasibility is key<br><br>Use <strong>Branch & Bound</strong> when:<br>• Need optimal solution<br>• Optimization problems<br>• Cost/value matters<br>• Can compute bounds"
+            },
+
+            // ========== ADVANTAGES & DISADVANTAGES ==========
+            {
+                category: "BT: Pros & Cons",
+                question: "What are the advantages of Backtracking?",
+                answer: "<strong>✓ Finds ALL solutions</strong> (or proves none exist)<br><strong>✓ Better than brute force</strong> due to pruning<br><strong>✓ Elegant implementation</strong> with recursion<br><strong>✓ Memory efficient</strong> (stores only current path)<br><strong>✓ Systematic exploration</strong> of solution space"
+            },
+            {
+                category: "BT: Pros & Cons",
+                question: "What are the disadvantages of Backtracking?",
+                answer: "<strong>✗ Still exponential</strong> in worst case<br><strong>✗ May explore many dead ends</strong> before finding solution<br><strong>✗ Not always most efficient</strong> (specialized algorithms may be faster)<br><strong>✗ Stack overflow risk</strong> with deep recursion<br><strong>✗ Hard to parallelize</strong> effectively"
+            },
+            {
+                category: "B&B: Pros & Cons",
+                question: "What are the advantages of Branch and Bound?",
+                answer: "<strong>✓ Finds optimal solution</strong> guaranteed<br><strong>✓ Doesn't explore entire tree</strong> due to pruning<br><strong>✓ Finds shortest path</strong> to best solution<br><strong>✓ No duplicate node visits</strong><br><strong>✓ Good for optimization</strong> problems<br><strong>✓ Lower time complexity</strong> than exhaustive search"
+            },
+            {
+                category: "B&B: Pros & Cons",
+                question: "What are the disadvantages of Branch and Bound?",
+                answer: "<strong>✗ Can be time-consuming</strong> for large problems<br><strong>✗ Tree may be too large</strong> in worst case<br><strong>✗ Parallelization is complicated</strong><br><strong>✗ Requires good bounding function</strong><br><strong>✗ Memory intensive</strong> with FIFO/LC strategies"
+            },
+
+            // ========== ADVANCED CONCEPTS ==========
+            {
+                category: "Advanced Topics",
+                question: "Name 5 classic Backtracking problems",
+                answer: "<strong>1. N-Queens:</strong> Place N queens safely<br><strong>2. Sudoku:</strong> Fill 9×9 grid with constraints<br><strong>3. Graph Coloring:</strong> Color vertices with m colors<br><strong>4. Hamiltonian Cycle:</strong> Visit all vertices once<br><strong>5. Subset Sum:</strong> Find subset summing to target<br><br>Also: Knight's Tour, Crossword puzzles, Maze solving"
+            },
+            {
+                category: "Advanced Topics",
+                question: "Why is a good bounding function important?",
+                answer: "A good bounding function:<br>• <strong>Prunes more branches</strong> early in search<br>• <strong>Reduces search space</strong> significantly<br>• <strong>Faster convergence</strong> to optimal solution<br>• <strong>Tighter bounds</strong> = better performance<br><br>The quality of bounds directly impacts B&B efficiency!"
+            },
+            {
+                category: "Advanced Topics",
+                question: "What is the relationship between E-nodes and Live nodes?",
+                answer: "All <strong>E-nodes are Live nodes</strong>, but not all Live nodes are E-nodes.<br><br>• <strong>Live nodes:</strong> All generated but not fully explored nodes<br>• <strong>E-node:</strong> The specific live node currently being expanded<br><br>At any moment, there's only ONE E-node but possibly many Live nodes."
+            },
+            {
+                category: "Advanced Topics",
+                question: "What happens when a node becomes Dead?",
+                answer: "When a node becomes Dead:<br>• <strong>Never revisited</strong> by the algorithm<br>• <strong>All children generated</strong> OR determined infeasible<br>• <strong>Removed from consideration</strong><br>• <strong>Memory can be freed</strong> (in some implementations)<br><br>This prevents redundant work and saves resources."
+            },
+            {
+                category: "Advanced Topics",
+                question: "Can you combine Backtracking and Branch & Bound?",
+                answer: "Yes! <strong>They can be combined</strong>:<br><br>• Use DFS-style backtracking for exploration<br>• Apply bounding functions to prune<br>• Get benefits of both approaches<br>• Common in constraint optimization problems<br><br>Example: Job scheduling with constraints and optimization goals"
+            },
+            {
+                category: "Advanced Topics",
+                question: "What is the time complexity of backtracking algorithms?",
+                answer: "Generally <strong>exponential: O(b^d)</strong> where:<br>• b = branching factor (choices per level)<br>• d = depth of tree<br><br>Examples:<br>• N-Queens: O(N!)<br>• Graph Coloring: O(m^n)<br>• Hamiltonian: O(n!)<br><br>Pruning reduces this significantly in practice!"
+            },
+
+            // ========== DATA STRUCTURES ==========
+            {
+                category: "Data Structures",
+                question: "What is the difference between Binary Tree and Binary Search Tree?",
+                answer: "<strong>Binary Tree:</strong><br>• Any tree with max 2 children per node<br>• No ordering property<br>• Used for hierarchical data<br><br><strong>Binary Search Tree (BST):</strong><br>• Left child < Parent < Right child<br>• Ordered structure<br>• Enables O(log n) search<br>• Used for efficient searching/sorting"
+            },
+            {
+                category: "Data Structures",
+                question: "What is the difference between Min Heap and Max Heap?",
+                answer: "<strong>Min Heap:</strong><br>• Parent ≤ Children<br>• Minimum element at root<br>• Used in priority queues (smallest first)<br><br><strong>Max Heap:</strong><br>• Parent ≥ Children<br>• Maximum element at root<br>• Used in heap sort, job scheduling<br><br>Both are complete binary trees!"
+            },
+            {
+                category: "Data Structures",
+                question: "What are the limitations of Arrays?",
+                answer: "<strong>1. Fixed Size:</strong> Cannot grow/shrink dynamically<br><strong>2. Wastage:</strong> Memory wasted if not fully used<br><strong>3. Insertion/Deletion:</strong> O(n) time - requires shifting<br><strong>4. Contiguous Memory:</strong> May fail for large arrays<br><strong>5. Type Restriction:</strong> Only homogeneous data<br><strong>6. No Built-in Operations:</strong> Like insert at position"
+            },
+            {
+                category: "Data Structures",
+                question: "Difference between Singly Linked List and Circular Linked List?",
+                answer: "<strong>Singly Linked List:</strong><br>• Last node points to NULL<br>• Traversal: Start to end only<br>• End detection: node→next == NULL<br><br><strong>Circular Linked List:</strong><br>• Last node points to first node<br>• Traversal: Can loop continuously<br>• No NULL pointer<br>• Used in: Round-robin scheduling, circular buffers"
+            },
+            {
+                category: "Data Structures",
+                question: "Difference between Doubly Linked List and Circular Linked List?",
+                answer: "<strong>Doubly Linked List:</strong><br>• Two pointers: prev and next<br>• Bidirectional traversal<br>• Last node→next = NULL<br>• More memory per node<br><br><strong>Circular Linked List:</strong><br>• Single pointer (usually)<br>• Last node points to first<br>• Circular traversal<br>• Can be singly or doubly linked"
+            },
+            {
+                category: "Data Structures",
+                question: "What is a Queue and how does it work?",
+                answer: "Queue is a <strong>FIFO (First In First Out)</strong> data structure.<br><br><strong>Operations:</strong><br>• <strong>Enqueue:</strong> Add at rear - O(1)<br>• <strong>Dequeue:</strong> Remove from front - O(1)<br>• <strong>Front:</strong> View first element<br>• <strong>IsEmpty:</strong> Check if empty<br><br><strong>Applications:</strong> CPU scheduling, BFS, printer queue, call handling"
+            },
+            {
+                category: "Data Structures",
+                question: "What are 2 applications of Linked Lists?",
+                answer: "<strong>1. Dynamic Memory Allocation:</strong><br>• Implementation of stacks, queues<br>• No fixed size limitation<br><br><strong>2. Polynomial Arithmetic:</strong><br>• Represent and manipulate polynomials<br>• Each node stores coefficient and exponent<br><br><strong>Bonus:</strong> Music playlists, browser history, undo functionality, image viewer"
+            },
+
+            // ========== ASYMPTOTIC NOTATION ==========
+            {
+                category: "Asymptotic Notation",
+                question: "What is the difference between Little oh (o) and Little omega (ω)?",
+                answer: "<strong>Little oh (o):</strong><br>• Strict upper bound<br>• f(n) = o(g(n)) means f grows strictly slower than g<br>• f(n) < c·g(n) for all c > 0<br><br><strong>Little omega (ω):</strong><br>• Strict lower bound<br>• f(n) = ω(g(n)) means f grows strictly faster than g<br>• f(n) > c·g(n) for all c > 0"
+            },
+            {
+                category: "Asymptotic Notation",
+                question: "What methods are used to solve recurrence relations?",
+                answer: "<strong>1. Substitution Method:</strong> Guess and verify by induction<br><strong>2. Recursion Tree Method:</strong> Draw tree, sum costs at each level<br><strong>3. Master Theorem:</strong> Direct formula for T(n) = aT(n/b) + f(n)<br><strong>4. Iteration Method:</strong> Expand recursion, find pattern<br><br>Most common in DAA: Recursion Tree and Master Theorem"
+            },
+            {
+                category: "Asymptotic Notation",
+                question: "What is Time Efficiency vs Space Efficiency?",
+                answer: "<strong>Time Efficiency:</strong><br>• How fast algorithm runs<br>• Measured by: Number of operations<br>• Big-O notation for time complexity<br>• Example: O(n) vs O(n²)<br><br><strong>Space Efficiency:</strong><br>• How much memory used<br>• Measured by: Extra space needed<br>• Includes: Variables, recursion stack<br>• Tradeoff: Often faster algorithms use more space"
+            },
+            {
+                category: "Asymptotic Notation",
+                question: "What is computational complexity?",
+                answer: "Computational complexity measures <strong>resources needed</strong> to solve a problem:<br><br><strong>Time Complexity:</strong> Number of steps<br><strong>Space Complexity:</strong> Memory required<br><strong>Classification:</strong><br>• P: Polynomial time<br>• NP: Nondeterministic Polynomial<br>• NP-Hard: At least as hard as NP<br>• NP-Complete: NP and NP-Hard<br><br>Helps compare algorithm efficiency!"
+            },
+
+            // ========== GRAPH ALGORITHMS ==========
+            {
+                category: "Graph Algorithms",
+                question: "What are graph traversal techniques?",
+                answer: "<strong>1. Depth First Search (DFS):</strong><br>• Goes deep before exploring siblings<br>• Uses Stack (or recursion)<br>• Applications: Cycle detection, topological sort<br><br><strong>2. Breadth First Search (BFS):</strong><br>• Explores level by level<br>• Uses Queue<br>• Applications: Shortest path (unweighted), level-order"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "How do you represent a graph using adjacency matrix?",
+                answer: "Adjacency Matrix is a <strong>2D array</strong> of size V×V where:<br><br>• Matrix[i][j] = 1 if edge exists from i to j<br>• Matrix[i][j] = 0 if no edge<br>• For weighted graphs: store weight instead of 1<br><br><strong>Pros:</strong> O(1) edge lookup<br><strong>Cons:</strong> O(V²) space, even for sparse graphs"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "What is Dijkstra's Algorithm?",
+                answer: "<strong>Dijkstra's finds shortest path</strong> from source to all vertices in weighted graph with <strong>non-negative weights</strong>.<br><br><strong>Approach:</strong><br>1. Initialize distances (∞ except source = 0)<br>2. Pick minimum distance unvisited vertex<br>3. Update neighbors' distances<br>4. Repeat until all visited<br><br><strong>Time:</strong> O(V²) or O(E log V) with priority queue"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "What is the Bellman-Ford Algorithm?",
+                answer: "<strong>Bellman-Ford finds shortest paths</strong> from source to all vertices, even with <strong>negative weights</strong>.<br><br><strong>Key Features:</strong><br>• Handles negative edges<br>• Detects negative cycles<br>• Relaxes all edges V-1 times<br><br><strong>Time:</strong> O(VE)<br><strong>Slower than Dijkstra</strong> but more versatile!"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "Difference between Dijkstra and Bellman-Ford?",
+                answer: "<strong>Dijkstra:</strong><br>• Only non-negative weights<br>• Faster: O(E log V)<br>• Greedy approach<br>• Cannot detect negative cycles<br><br><strong>Bellman-Ford:</strong><br>• Handles negative weights<br>• Slower: O(VE)<br>• Dynamic programming<br>• Detects negative cycles<br><br>Use Bellman-Ford when negative edges exist!"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "What is Floyd-Warshall Algorithm?",
+                answer: "<strong>Floyd-Warshall finds all-pairs shortest paths</strong> in a weighted graph.<br><br><strong>Approach:</strong><br>• Uses Dynamic Programming<br>• Considers all vertices as intermediate<br>• Updates distance matrix iteratively<br><br><strong>Time:</strong> O(V³)<br><strong>Space:</strong> O(V²)<br><br>Can handle negative edges but not negative cycles!"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "What is a Minimum Cost Spanning Tree?",
+                answer: "A <strong>Minimum Spanning Tree (MST)</strong> is a subset of edges that:<br><br>• Connects all vertices<br>• Forms a tree (no cycles)<br>• Has minimum total edge weight<br><br><strong>Algorithms:</strong><br>• Kruskal's (edge-based)<br>• Prim's (vertex-based)<br><br><strong>Applications:</strong> Network design, clustering, approximation algorithms"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "Explain Kruskal's Algorithm for MST",
+                answer: "<strong>Kruskal's builds MST</strong> by selecting edges in increasing weight order:<br><br><strong>Steps:</strong><br>1. Sort all edges by weight<br>2. Pick smallest edge<br>3. If doesn't form cycle, add to MST<br>4. Repeat until V-1 edges added<br><br><strong>Uses:</strong> Union-Find for cycle detection<br><strong>Time:</strong> O(E log E)"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "Explain Prim's Algorithm for MST",
+                answer: "<strong>Prim's builds MST</strong> by growing tree from starting vertex:<br><br><strong>Steps:</strong><br>1. Start with any vertex<br>2. Add minimum weight edge connecting tree to non-tree vertex<br>3. Repeat until all vertices included<br><br><strong>Uses:</strong> Priority queue<br><strong>Time:</strong> O(E log V)<br><br>Better for dense graphs!"
+            },
+            {
+                category: "Graph Algorithms",
+                question: "Difference between tree and graph?",
+                answer: "<strong>Tree:</strong><br>• Connected acyclic graph<br>• V-1 edges for V vertices<br>• Exactly one path between any two vertices<br>• Hierarchical structure<br>• No cycles<br><br><strong>Graph:</strong><br>• Can have cycles<br>• Any number of edges<br>• Multiple paths possible<br>• Can be disconnected<br>• More general structure"
+            },
+
+            // ========== STRING ALGORITHMS ==========
+            {
+                category: "String Algorithms",
+                question: "What is the KMP (Knuth-Morris-Pratt) Algorithm?",
+                answer: "<strong>KMP efficiently finds pattern in text</strong> using a preprocessing table.<br><br><strong>Key Idea:</strong> Don't re-compare characters we already matched<br><br><strong>Steps:</strong><br>1. Build LPS (Longest Prefix Suffix) array<br>2. Use LPS to skip unnecessary comparisons<br><br><strong>Time:</strong> O(n + m) where n=text, m=pattern<br><strong>Better than naive O(nm)!</strong>"
+            },
+            {
+                category: "String Algorithms",
+                question: "What is the Boyer-Moore Algorithm?",
+                answer: "<strong>Boyer-Moore searches pattern</strong> from right to left with two heuristics:<br><br><strong>1. Bad Character Rule:</strong> Skip based on mismatched character<br><strong>2. Good Suffix Rule:</strong> Skip based on matched suffix<br><br><strong>Advantage:</strong> Can skip multiple characters<br><strong>Best Case:</strong> O(n/m)<br><strong>Worst Case:</strong> O(nm)<br><br>Very fast in practice!"
+            },
+            {
+                category: "String Algorithms",
+                question: "List common string matching algorithms",
+                answer: "<strong>1. Naive/Brute Force:</strong> O(nm) - check all positions<br><strong>2. KMP:</strong> O(n+m) - uses LPS array<br><strong>3. Boyer-Moore:</strong> Best practical performance<br><strong>4. Rabin-Karp:</strong> Uses hashing<br><strong>5. Z-Algorithm:</strong> Linear time matching<br><strong>6. Aho-Corasick:</strong> Multiple pattern matching<br><br>Choice depends on pattern size and text characteristics!"
+            },
+
+            // ========== SORTING ALGORITHMS ==========
+            {
+                category: "Sorting Algorithms",
+                question: "What is Bucket Sort and when to use it?",
+                answer: "<strong>Bucket Sort distributes elements</strong> into buckets, sorts each, then concatenates.<br><br><strong>Steps:</strong><br>1. Create n empty buckets<br>2. Distribute elements into buckets<br>3. Sort individual buckets<br>4. Concatenate all buckets<br><br><strong>Time:</strong> O(n) average, O(n²) worst<br><strong>Best for:</strong> Uniformly distributed data (e.g., decimals 0-1)"
+            },
+            {
+                category: "Sorting Algorithms",
+                question: "What are different ways to select a pivot in Quick Sort?",
+                answer: "<strong>1. First Element:</strong> Simple but bad for sorted data<br><strong>2. Last Element:</strong> Common but same issue<br><strong>3. Random Element:</strong> Good average performance<br><strong>4. Median-of-Three:</strong> First, middle, last - better partition<br><strong>5. Median-of-Medians:</strong> Guarantees O(n log n)<br><br>Choice affects performance significantly!"
+            },
+            {
+                category: "Sorting Algorithms",
+                question: "What are various algorithm design techniques?",
+                answer: "<strong>1. Divide & Conquer:</strong> Break into subproblems (Merge Sort)<br><strong>2. Dynamic Programming:</strong> Store subproblem results (Knapsack)<br><strong>3. Greedy:</strong> Make locally optimal choice (Huffman)<br><strong>4. Backtracking:</strong> Try all paths, backtrack (N-Queens)<br><strong>5. Branch & Bound:</strong> Optimization with bounds (TSP)<br><strong>6. Transform & Conquer:</strong> Change representation<br><strong>7. Brute Force:</strong> Try all possibilities"
+            },
+
+            // ========== DYNAMIC PROGRAMMING ==========
+            {
+                category: "Dynamic Programming",
+                question: "What is the difference between Divide & Conquer and Dynamic Programming?",
+                answer: "<strong>Divide & Conquer:</strong><br>• Subproblems are independent<br>• No overlapping subproblems<br>• Top-down approach<br>• Example: Merge Sort, Quick Sort<br><br><strong>Dynamic Programming:</strong><br>• Overlapping subproblems<br>• Store results (memoization)<br>• Bottom-up or top-down<br>• Example: Fibonacci, Knapsack<br><br>DP = D&C + Memoization!"
+            },
+            {
+                category: "Dynamic Programming",
+                question: "How to solve 0/1 Knapsack using Dynamic Programming?",
+                answer: "<strong>Create a table DP[i][w]</strong> where:<br>• i = items considered (0 to n)<br>• w = weight capacity (0 to W)<br><br><strong>Recurrence:</strong><br>If weight[i] ≤ w:<br>  DP[i][w] = max(DP[i-1][w], value[i] + DP[i-1][w-weight[i]])<br>Else:<br>  DP[i][w] = DP[i-1][w]<br><br><strong>Time:</strong> O(nW), <strong>Space:</strong> O(nW)"
+            },
+
+            // ========== GREEDY ALGORITHMS ==========
+            {
+                category: "Greedy Algorithms",
+                question: "Explain Huffman Coding Algorithm",
+                answer: "<strong>Huffman creates variable-length codes</strong> for compression based on frequency.<br><br><strong>Steps:</strong><br>1. Create leaf node for each character with frequency<br>2. Build min-heap of all nodes<br>3. Extract two minimum nodes, create parent with sum frequency<br>4. Repeat until one node (root) remains<br>5. Assign 0 for left, 1 for right<br><br>Higher frequency → shorter code!"
+            },
+            {
+                category: "Greedy Algorithms",
+                question: "How does Huffman Coding save space?",
+                answer: "<strong>Variable-length encoding</strong> based on frequency:<br><br>• <strong>Fixed encoding:</strong> Each char = 8 bits<br>• <strong>Huffman:</strong> Frequent chars get shorter codes<br><br><strong>Example:</strong><br>Character 'a' (freq=45) → 1 bit<br>Character 'f' (freq=5) → 4 bits<br><br>Frequently used characters compressed more, saving overall space!"
+            },
+
+            // ========== COMPLEXITY THEORY ==========
+            {
+                category: "Complexity Theory",
+                question: "What is P class in complexity theory?",
+                answer: "<strong>P (Polynomial Time)</strong> class contains problems solvable in polynomial time by deterministic algorithm.<br><br>• Time: O(n^k) for some constant k<br>• <strong>Efficiently solvable</strong><br>• Examples: Sorting, Searching, MST, Shortest Path<br><br>If problem is in P, we can solve it reasonably fast!"
+            },
+            {
+                category: "Complexity Theory",
+                question: "What is NP class in complexity theory?",
+                answer: "<strong>NP (Nondeterministic Polynomial)</strong> contains problems where solutions can be <strong>verified</strong> in polynomial time.<br><br>• May not be solvable in polynomial time<br>• But if someone gives you a solution, you can verify it quickly<br>• Examples: Hamiltonian Cycle, Graph Coloring, SAT<br><br><strong>P ⊆ NP</strong> (all P problems are in NP)"
+            },
+            {
+                category: "Complexity Theory",
+                question: "What is NP-Hard?",
+                answer: "<strong>NP-Hard problems are at least as hard</strong> as the hardest problems in NP.<br><br>• No known polynomial-time solution<br>• NOT necessarily in NP<br>• If any NP-Hard problem solved in P-time, then P = NP<br><br><strong>Examples:</strong> Halting Problem, Traveling Salesman (optimization)<br><br>NP-Hard may not even have verifiable solutions!"
+            },
+            {
+                category: "Complexity Theory",
+                question: "What is NP-Complete?",
+                answer: "<strong>NP-Complete = NP ∩ NP-Hard</strong><br><br>Properties:<br>• In NP (verifiable in polynomial time)<br>• NP-Hard (as hard as hardest NP problems)<br>• Can reduce any NP problem to it<br><br><strong>Examples:</strong> SAT, 3-SAT, Hamiltonian Cycle, Graph Coloring, Knapsack<br><br>If ANY NP-Complete solved in P-time → P = NP!"
+            },
+            {
+                category: "Complexity Theory",
+                question: "Provide examples of P, NP, NP-Hard, and NP-Complete",
+                answer: "<strong>P:</strong> Sorting, Binary Search, MST, Dijkstra<br><br><strong>NP:</strong> All of above + Hamiltonian Path, Graph Coloring<br><br><strong>NP-Complete:</strong> SAT, 3-SAT, Vertex Cover, Clique, Subset Sum, Hamiltonian Cycle<br><br><strong>NP-Hard (not in NP):</strong> Halting Problem, Optimization TSP<br><br>Remember: NP-Complete is sweetspot of hardness!"
+            },
+
+            // ========== MISCELLANEOUS ==========
+            {
+                category: "Miscellaneous",
+                question: "What is the GCD algorithm (Euclidean Algorithm)?",
+                answer: "<strong>Euclidean Algorithm finds GCD</strong> of two numbers:<br><br><strong>Pseudocode:</strong><br><code>GCD(a, b):</code><br>  if b == 0:<br>    return a<br>  else:<br>    return GCD(b, a mod b)<br><br><strong>Time:</strong> O(log min(a,b))<br><br>Based on: GCD(a,b) = GCD(b, a mod b)"
+            },
+            {
+                category: "Miscellaneous",
+                question: "What is the Chinese Remainder Theorem?",
+                answer: "<strong>CRT solves system of congruences</strong> with coprime moduli:<br><br>Given:<br>x ≡ a₁ (mod m₁)<br>x ≡ a₂ (mod m₂)<br>...<br><br>CRT provides <strong>unique solution modulo M</strong> where M = m₁×m₂×...<br><br><strong>Applications:</strong> Cryptography (RSA), number theory, fast arithmetic"
+            },
+            {
+                category: "Miscellaneous",
+                question: "What is the Convex Hull Problem?",
+                answer: "<strong>Convex Hull is smallest convex polygon</strong> enclosing all points.<br><br><strong>Algorithms:</strong><br>• <strong>Graham Scan:</strong> O(n log n)<br>• <strong>Jarvis March:</strong> O(nh) where h = hull points<br>• <strong>QuickHull:</strong> O(n log n) average<br><br><strong>Applications:</strong> Computer graphics, pattern recognition, collision detection"
+            },
+            {
+                category: "Miscellaneous",
+                question: "What is the Traveling Salesman Problem (TSP)?",
+                answer: "<strong>TSP: Find shortest route</strong> visiting all cities exactly once and returning to start.<br><br><strong>Classification:</strong> NP-Hard optimization problem<br><br><strong>Approaches:</strong><br>• Branch & Bound (exact)<br>• Dynamic Programming: O(n²2ⁿ)<br>• Greedy heuristics<br>• Genetic algorithms<br><br>No polynomial-time exact solution known!"
+            },
+            {
+                category: "Miscellaneous",
+                question: "What is Binary Search and its complexity?",
+                answer: "<strong>Binary Search finds element</strong> in sorted array by repeatedly halving search space.<br><br><strong>Algorithm:</strong><br>1. Compare target with middle element<br>2. If equal: found!<br>3. If target < middle: search left half<br>4. If target > middle: search right half<br><br><strong>Time:</strong> O(log n)<br><strong>Space:</strong> O(1) iterative, O(log n) recursive"
+            }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let currentFilter = 'All';
+        let filteredCards = [...flashcards];
+        let viewedCards = new Set();
+
+        const categories = ['All', ...new Set(flashcards.map(card => card.category))];
+
+        // Initialize filters
+        const filtersContainer = document.getElementById('filters');
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            btn.textContent = cat;
+            btn.onclick = () => filterCards(cat);
+            if (cat === 'All') btn.classList.add('active');
+            filtersContainer.appendChild(btn);
+        });
+
+        function filterCards(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === category);
+            });
+
+            if (category === 'All') {
+                filteredCards = [...flashcards];
+            } else {
+                filteredCards = flashcards.filter(card => card.category === category);
+            }
+
+            currentIndex = 0;
+            isFlipped = false;
+            viewedCards.clear();
+            updateCard();
+            updateStats();
+        }
+
+        function shuffleCards() {
+            // Fisher-Yates shuffle
+            for (let i = filteredCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+            }
+            currentIndex = 0;
+            isFlipped = false;
+            updateCard();
+        }
+
+        function updateCard() {
+            const card = filteredCards[currentIndex];
+            const flashcard = document.getElementById('flashcard');
+            
+            if (isFlipped) {
+                flashcard.classList.remove('flipped');
+                setTimeout(() => {
+                    document.getElementById('question').innerHTML = card.question;
+                    document.getElementById('answer').innerHTML = card.answer;
+                    document.getElementById('categoryFront').textContent = card.category;
+                    document.getElementById('categoryBack').textContent = card.category;
+                    document.getElementById('cardNumberFront').textContent = `${currentIndex + 1}/${filteredCards.length}`;
+                    document.getElementById('cardNumberBack').textContent = `${currentIndex + 1}/${filteredCards.length}`;
+                }, 300);
+                isFlipped = false;
+            } else {
+                document.getElementById('question').innerHTML = card.question;
+                document.getElementById('answer').innerHTML = card.answer;
+                document.getElementById('categoryFront').textContent = card.category;
+                document.getElementById('categoryBack').textContent = card.category;
+                document.getElementById('cardNumberFront').textContent = `${currentIndex + 1}/${filteredCards.length}`;
+                document.getElementById('cardNumberBack').textContent = `${currentIndex + 1}/${filteredCards.length}`;
+            }
+
+            viewedCards.add(currentIndex);
+            updateProgress();
+            updateCounter();
+            updateButtons();
+        }
+
+        function flipCard() {
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (currentIndex < filteredCards.length - 1) {
+                currentIndex++;
+                if (isFlipped) flipCard();
+                setTimeout(updateCard, isFlipped ? 300 : 0);
+            }
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                if (isFlipped) flipCard();
+                setTimeout(updateCard, isFlipped ? 300 : 0);
+            }
+        }
+
+        function updateProgress() {
+            const progress = (viewedCards.size / flashcards.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentProgress').textContent = viewedCards.size + '/' + flashcards.length;
+        }
+
+        function updateCounter() {
+            document.getElementById('counter').textContent = `${currentIndex + 1} / ${filteredCards.length}`;
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === filteredCards.length - 1;
+        }
+
+        function updateStats() {
+            document.getElementById('totalCards').textContent = filteredCards.length;
+            document.getElementById('categoryCount').textContent = categories.length - 1;
+        }
+
+        // Event listeners
+        document.getElementById('flashcard').addEventListener('click', flipCard);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                flipCard();
+            } else if (e.code === 'ArrowRight') {
+                nextCard();
+            } else if (e.code === 'ArrowLeft') {
+                previousCard();
+            }
+        });
+
+        // Initialize
+        updateCard();
+        updateStats();
+    </script>
+</body>
+</html>
